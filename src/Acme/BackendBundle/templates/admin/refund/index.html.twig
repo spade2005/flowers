@@ -1,0 +1,123 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}退单列表{% endblock %}
+{% block javascripts %}
+    <script>
+        var global_tables = {
+            id: "tabList",
+            open: true,
+            ajax: location.href,
+            columns: [
+                {
+                    "data": "id", render: function (data, type, row) {
+                        let str = '<div class="row my-2">' +
+                            '<div class="col-md-2">' + row.createAt + '</div>' +
+                            '<div class="col-md-4">退单号:' + row.refund_no + '</div>'+
+                            '<div class="col-md-4">订单号:' + row.order_no + '</div></div>';
+                        let goods = '';
+                        for (let g in row.goods) {
+                            let gd = row.goods[g];
+                            goods += '<div class="row"><div class="col"><span class="float-start me-1"><img class="img-thumbnail" width="60" height="60" src="' + gd['goods_logo'] + '" /></span>' +
+                                '<span class="float-start">' + gd['goods_name'] + '</span></div>' +
+                                '<div class="col">x' + gd['goods_num'] + '</div>' +
+                                '<div class="col">已发货</div></div>';
+                        }
+                        return str + ' <div class="row">' +
+                            '<div class="col-md-5">' + goods + '</div>' +
+                            '<div class="col-md-2">￥' + row.order_amount + '</div>' +
+                            '<div class="col-md-1">￥' + row.refund_amount + '</div>' +
+                            '<div class="col-md-1">' + row.reason + '</div>' +
+                            '<div class="col-md-1">' + row.status + '</div>' +
+                            '<div class="col-md-2"><a href="/admin/refund/'+row.id+'">退单详情</a></div></div>';
+                    },
+                }
+            ],
+            filterData: function (d) {
+                d.order_no = $("#order_no").val();
+                d.start_day = $("#start_day").val();
+                d.finish_day = $("#finish_day").val();
+                d.refund_no = $("#refund_no").val();
+                d.user_name = $("#user_name").val();
+            }
+        };
+        $(document).ready(function () {
+            searchForm();
+        });
+
+        function searchForm() {
+            createTable();
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h1>退单列表</h1>
+    <div class="row mb-5">
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="text" class="form-control" id="refund_no" placeholder="输入退单编号"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="text" class="form-control" id="order_no" placeholder="输入订单编号"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="text" class="form-control" id="user_name" placeholder="输入会员帐号"/>
+            </div>
+        </div>
+
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="date" class="form-control" id="start_day" placeholder="输入起始时间"/>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="date" class="form-control" id="finish_day" placeholder="输入结束时间"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="button" value="Search" onclick="searchForm()" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+    <table class="table table-hover" id="tabList">
+        <thead>
+        <tr>
+            <th>
+                <div class="row">
+                    <div class="col-1">
+                        id
+                    </div>
+                    <div class="col-md-4">
+                        订单详情
+                    </div>
+                    <div class="col-md-2">
+                       实付金额
+                    </div>
+                    <div class="col-md-1">
+                        退款金额
+                    </div>
+                    <div class="col-md-1">
+                        退单原因
+                    </div>
+                    <div class="col-md-1">
+                        状态
+                    </div>
+                    <div class="col-md-1">
+                        操作
+                    </div>
+
+                </div>
+            </th>
+        </tr>
+        </thead>
+    </table>
+
+{% endblock %}

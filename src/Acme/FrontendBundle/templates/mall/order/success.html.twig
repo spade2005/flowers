@@ -1,0 +1,30 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}订单支付成功{% endblock %}
+{% block stylesheets %}
+    <style>
+
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="swal-icon swal-icon--success">
+        <span class="swal-icon--success__line swal-icon--success__line--long"></span>
+        <span class="swal-icon--success__line swal-icon--success__line--tip"></span>
+
+        <div class="swal-icon--success__ring"></div>
+        <div class="swal-icon--success__hide-corners"></div>
+    </div>
+    <br>
+
+    <h4 class="text-center mt-3">订单支付成功！<a href="/mall/member/order" class="fs-5">查看订单</a></h4>
+    <div style="height:20rem;">
+    </div>
+{% endblock %}

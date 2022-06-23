@@ -1,0 +1,130 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}商品列表{% endblock %}
+{% block javascripts %}
+    <script>
+        var global_tables = {
+            id: "tabList",
+            open: true,
+            ajax: location.href,
+            columns: [
+                {"data": "id"},
+                {
+                    "data": "title", render: function (data, type, row) {
+                        return "<a href='/admin/goods/" + row.id + "/edit'>" + data + "</a>";
+                    },
+                },
+                {"data": "cateStr"},
+                {"data": "goods_sn"},
+                {
+                    "data": "brand", render: function (data, type, row) {
+                        return row.brand + "/" + row.store;
+                    },
+                },
+                {"data": "is_on_sale"},
+                {
+                    "data": "price", render: function (data, type, row) {
+                        return row.price + "/" + row.real_price;
+                    },
+                }, {
+                    "data": "quantity", render: function (data, type, row) {
+                        return "<a href='/admin/goods/" + row.id + "/quantity'>" + row.quantity + "/" + row.total_quantity + "</a>";
+                    },
+                },
+                {"data": "testStr"},
+                {
+                    "data": "total_views", render: function (data, type, row) {
+                        return row.total_views + "/" + row.total_sales;
+                    },
+                },
+                {"data": "createAt"},
+                {"data": "updateAt"},
+                {
+                    "data": "id", render: function (data, type, row) {
+                        return "<a href='#' data-url='/admin/goods/" + data + "' onclick='delData(this)'>删除</a>";
+                    },
+                }
+            ],
+            filterData: function (d) {
+                d.name = $("#keyword").val();
+                d.goods_sn = $("#goods_sn").val();
+                d.cate_id = $("#cate_id").val();
+                d.on_sale = $("#on_sale").val();
+            }
+        };
+        $(document).ready(function () {
+            searchForm();
+        });
+
+        function searchForm() {
+            createTable();
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h1>商品列表<span class="fs-5 ms-3"><a href="{{ path('admin_app_goods_new') }}">创建</a></span></h1>
+
+    <div class="row mb-5">
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="text" class="form-control" id="keyword" placeholder="输入商品标题"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="text" class="form-control" id="goods_sn" placeholder="输入商品货号"/>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <select class="form-control" id="cate_id">
+                    <option value="0">分类不限</option>
+                    {% for p in cateList %}
+                        <option value="{{ p.id }}">{{ p.title }}</option>
+                        {% if p.sub is defined %}
+                            {% for sp in p.sub %}
+                                <option value="{{ sp.id }}">-- {{ sp.title }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <select class="form-control" id="on_sale">
+                    <option value="-1">状态不限</option>
+                    <option value="0">下架</option>
+                    <option value="1">上架</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="button" value="Search" onclick="searchForm()" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover table-bordered" id="tabList">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>标题</th>
+            <th>分类</th>
+            <th>货号</th>
+            <th>品牌/店铺</th>
+            <th>状态</th>
+            <th>价格</th>
+            <th>库存</th>
+            <th>是否测试</th>
+            <th>浏览/销量</th>
+            <th>创建日期</th>
+            <th>更新日期</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+    </table>
+
+{% endblock %}

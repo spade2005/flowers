@@ -1,0 +1,221 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}购物车{% endblock %}
+{% block stylesheets %}
+<style>
+    .od-goods {
+        font-size: 0.8rem;
+    }
+    .od-g-t {
+        display: inline-block;
+        padding-left: 10px;
+        vertical-align: top;
+    }
+    .od-g-t a {
+        display: block;
+        margin: 0.3rem;
+    }
+    .od-g-t span {
+        display: block;
+        margin-left: -0.3rem;
+    }
+    #totalAmount{
+        font-weight: 700;font-size: 1.2rem;
+    }
+    .goods-num-td{
+        width:140px;
+    }
+
+</style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        var checkbox=true;
+        $(document).ready(function () {
+            $("#btnSelectAll").on('click',function (){
+                $(".cbox").prop("checked",!!checkbox);
+                checkbox=!checkbox;
+                calcOrder();
+            })
+            $(".cbox").on('click',function (){
+                calcOrder();
+            })
+            $('.goods-num-td input').on('keyup',function(){
+                let g=$(this);
+                let qt=g.data("quantity");
+                let v=g.val()*1;
+                if(v<=1){
+                    v=1;
+                }
+                if(v>=qt){
+                    v=qt;
+                }
+                g.val(v);
+                cartChange(g);
+            })
+            $("#btnPay").on('click',function(){
+                let id=[];
+                $(".cbox:checked").each(function (i,v){
+                    id.push(v.value);
+                })
+                if(id.length<=0){
+                    return;
+                }
+                location='/mall/order/cart?id='+id.join(",");
+            })
+        });
+        function cartDiv(o){
+            let g=$(o).next("input");
+            let v=g.val()*1-1;
+            if(v<=1){
+                v=1;
+            }
+            g.val(v);
+            cartChange(g);
+        }
+        function cartAdd(o){
+            let g=$(o).prev("input");
+            let qt=g.data("quantity");
+            g.val(g.val()*1+1);
+            if(g.val()>=qt){
+                g.val(qt);
+            }
+            cartChange(g);
+        }
+        function calcOrder(){
+            let id=[];
+            $(".cbox:checked").each(function (i,v){
+                id.push(v.value);
+            })
+            if(id.length<=0){
+                $("#totalAmount").html('￥0.00');
+                return;
+            }
+            let url='/mall/cart/check';
+            let data={
+                id:id
+            };
+            $.post(url,data,function(j){
+                if(j.code=='1'){
+                    return swal({
+                        title: "操作失败",
+                        text: j.message,
+                        icon: "error",
+                        button: "OK",
+                    });
+                }
+                $("#totalAmount").html('￥'+j.data.amount);
+            },'json');
+        }
+        function cartChange(g){
+            let url='/mall/cart/change';
+            let data={
+                id:g.data("id"),num:g.val()
+            };
+            $.post(url,data,function(j){
+                if(j.code=='1'){
+                    return swal({
+                        title: "操作失败",
+                        text: j.message,
+                        icon: "error",
+                        button: "OK",
+                    });
+                }
+            },'json');
+        }
+        function delGoods(id){
+            swal({
+                title: "确定删除?",
+                text: "删除后，将从购物车移除此商品!",
+                icon: "warning",
+                buttons: ["取消","确定"],
+                dangerMode: true,
+            }).then((willDelete) => {
+                    if (willDelete) {
+                        let url='/mall/cart/del';
+                        let data={id:id};
+                        $.post(url,data,function(j){
+                            if(j.code=='1'){
+                                return swal({
+                                    title: "操作失败",
+                                    text: j.message,
+                                    icon: "error",
+                                    button: "OK",
+                                });
+                            }
+                            location.reload();
+                        },'json');
+                    }
+                });
+
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="row" style="height:20rem;">
+        {% if list %}
+            <div>
+                <h5>商品信息</h5>
+                <table class="table align-middle text-center">
+                    <thead>
+                    <tr>
+                        <th>#<a href="javascript:void(0)" id="btnSelectAll">全选</a></th>
+                        <th>商品名称</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in list %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="cbox" value="{{ p.id }}">
+                            </td>
+                            <td>
+                                <div class="od-goods">
+                                    <a class="od-g-i" href="/mall/goods/{{ p.goods_id }}">
+                                        <img src="{{ p.goods.logo }}" width="50" height="50"/>
+                                    </a> &nbsp;
+                                    <div class="od-g-t">
+                                        <a href="/mall/goods/{{ p.goods_id }}">
+                                            {{ p.goods.title }}
+                                        </a>
+                                        <span>鲜花不支持7天退货</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ p.goods.real_price }}</td>
+                            <td class="goods-num-td">
+                                <div class="input-group">
+                                  <span class="input-group-text" onclick="cartDiv(this)">-</span>
+                                  <input type="text" value="{{ p.goods_number }}" class="form-control text-center" data-quantity="{{ p.goods.quantity}}" data-id="{{p.id}}">
+                                  <span class="input-group-text" onclick="cartAdd(this)">+</span>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" onclick="delGoods({{ p.id }})">删除</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td colspan="2">总价：<span id="totalAmount" class="text-danger">￥0.00</span></td>
+                        <td>
+                            <button type="button" id="btnPay" class="btn btn-danger">去结算</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% else%}
+        <div class="text-center mt-5">
+            <i class="fa fa-shopping-cart fa-4x"></i>
+            购物车空空的哦~，去看看心仪的商品吧~<br>
+            <a href="/mall/cate">去购物吧</a>
+        </div>
+        {% endif  %}
+    </div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}商品分类管理{% endblock %}
+{% block javascripts %}
+    <script>
+        var global_tables = {
+            id: "tabList",
+            open: true,
+            ajax: location.href,
+            columns: [
+                {"data": "id"},
+                {
+                    "data": "title", render: function (data, type, row) {
+                        return "<a href='/admin/goods_cate/" + row.id + "/edit'>" + data + "</a>";
+                    },
+                },
+                {"data": "parentId"},
+                {"data": "mark"},
+                {"data": "createAt"},
+                {"data": "updateAt"},
+                {
+                    "data": "id", render: function (data, type, row) {
+                        return "<a href='#' data-url='/admin/goods_cate/" + data + "' onclick='delData(this)'>删除</a>";
+                    },
+                }
+            ],
+            filterData: function (d) {
+                d.name = $("#keyword").val();
+            }
+        };
+        $(document).ready(function () {
+            searchForm();
+        });
+
+        function searchForm() {
+            createTable();
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h1>商品分类<span class="fs-5 ms-3"><a href="{{ path('admin_app_goodsCate_new') }}">创建</a></span></h1>
+
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="text" class="form-control" id="keyword" placeholder="输入关键字"/>
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="button" value="Search" onclick="searchForm()" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover table-bordered" id="tabList">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>标题</th>
+            <th>层级</th>
+            <th>备注</th>
+            <th>创建日期</th>
+            <th>更新日期</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+    </table>
+
+{% endblock %}

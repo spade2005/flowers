@@ -1,0 +1,38 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}User{% endblock %}
+
+{% block body %}
+    <h1>User</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ user.id }}</td>
+            </tr>
+            <tr>
+                <th>账户</th>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <th>角色</th>
+                <td>{{ user.roles }}</td>
+            </tr>
+            <tr>
+                <th>创建日期</th>
+                <td>{{ user.createAt }}</td>
+            </tr>
+            <tr>
+                <th>更新日期</th>
+                <td>{{ user.updateAt }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_app_user_index') }}">back to list</a>
+
+    <a href="{{ path('admin_app_user_edit', {'id': user.id}) }}">edit</a>
+
+    {{ include('admin/user/_delete_form.html.twig') }}
+{% endblock %}

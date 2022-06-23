@@ -1,0 +1,28 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}Please Login{% endblock %}
+
+{% block body %}
+<main role="main" class="pb-3">
+    {% if error %}
+        <div class="p-3 mb-2 bg-warning text-dark">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+    <form action="{{ path('app_login') }}" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">userName:</label>
+            <input type="text" class="form-control" id="username" name="_username" value="{{ last_username }}">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            <input class="form-control" type="password" id="password" name="_password"/>
+        </div>
+
+        {# If you want to control the URL the user is redirected to on success
+        <input type="hidden" name="_target_path" value="/account"/> #}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">login</button>
+        </div>
+    </form>
+</main>
+{% endblock %}

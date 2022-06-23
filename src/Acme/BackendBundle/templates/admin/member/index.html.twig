@@ -1,0 +1,91 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}会员管理{% endblock %}
+{% block javascripts %}
+    <script>
+        var global_tables = {
+            id: "tabList",
+            open: true,
+            ajax: location.href,
+            columns: [
+                {"data": "id"},
+                {
+                    "data": "username", render: function (data, type, row) {
+                        return "<a href='/admin/member/" + row.id + "/edit'>" + data + "</a>";
+                    },
+                },
+                {"data": "phone"},
+                {
+                    "data": "headImg", render: function (data, type, row) {
+                        return "<a href='" + data + "' target='_blank'>点击查看</a>";
+                    },
+                },
+                {"data": "realName"},
+                {"data": "sex"},
+                {"data": "mark"},
+                {"data": "level"},
+                {
+                    "data": "point", render: function (data, type, row) {
+                        return row['point'] + "/" + row['totalPoint'];
+                    },
+                },
+                {"data": "createAt"},
+                {"data": "updateAt"},
+                {
+                    "data": "id", render: function (data, type, row) {
+                        return "<a href='/admin/member/" + data + "'>show</a> " +
+                            "<a href='#' data-url='/admin/member/" + data + "' onclick='delData(this)'>删除</a>";
+                    },
+                }
+            ],
+            filterData: function (d) {
+                d.name = $("#keyword").val();
+            }
+        };
+        $(document).ready(function () {
+            searchForm();
+        });
+
+        function searchForm() {
+            createTable();
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h1>会员管理<span class="fs-5 ms-3"><a href="{{ path('admin_app_member_new') }}">创建会员</a></span></h1>
+
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="text" class="form-control" id="keyword" placeholder="输入关键字"/>
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <input type="button" value="Search" onclick="searchForm()" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+
+        <table class="table table-striped table-hover table-bordered" id="tabList">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>账户</th>
+                <th>手机号码</th>
+                <th>头像</th>
+                <th>名称</th>
+                <th>性别</th>
+                <th>备注</th>
+                <th>等级</th>
+                <th>积分</th>
+                <th>创建日期</th>
+                <th>更新日期</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+        </table>
+
+{% endblock %}

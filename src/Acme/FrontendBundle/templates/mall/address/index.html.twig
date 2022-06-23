@@ -1,0 +1,88 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}Member index{% endblock %}
+{% block stylesheets %}
+    <style>
+.order-addr .oa-info{
+        border:2px solid #E1E1E1;
+        padding:0.8rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        border-radius: .55rem;
+        margin-bottom:1rem;
+        cursor: pointer;
+    }
+    .order-addr .active,.order-addr .oa-info:hover{
+        border:2px solid #0d6efd;
+    }
+    .order-addr .oa-info li{
+        padding-bottom:0.1rem;
+        font-size:0.9rem;
+    }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            $(".btnDel").on('click',function(){
+                let url=$(this).data("href");
+                swal({
+                  title: "请确认是否删除?",
+                  text: "删除将不可恢复"+url,
+                  icon: "warning",
+                  buttons: true,
+                  dangerMode: true,
+                })
+                .then((willDelete) => {
+                  if (willDelete) {
+                    $.post(url,{},function(j){
+                        if(j.error==1){
+                            return swal({
+                              title: "操作失败",
+                              text: j.message,
+                              icon: "error",
+                              button: "OK",
+                            });
+                        }
+                        swal({
+                          title: "操作成功",
+                          text: "点击返回列表",
+                          icon: "success",
+                          button: "OK",
+                        }).then(()=>{
+                            location.reload();
+                        });
+                    },'json');
+                  }
+                });
+            })
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div>
+        <h4>收货人信息 <span class="fs-6 ms-3"><a href="/mall/address/new">新增收货地址</a></span></h4>
+        <div class="row order-addr">
+            {% for p in addrList %}
+            <div class="col-md-3 col-sm-3">
+                <ul class="oa-info {% if p.is_default == 1 %}active{% endif%}" data-id="{{p.id}}">
+                    <li>{{p.province}}{{p.city}}{{p.district}}</li>
+                    <li>{{p.address}}</li>
+                    <li>{{p.name}} {{p.mobile}}</li>
+                    <li>
+                    <div class="row">
+                        <div class="col text-center pt-1">
+                    <a href="/mall/address/{{p.id}}/edit">修改</a>
+                        </div>
+                        <div class="col text-center pt-1">
+                    <a href="#" class="btnDel" data-href="/mall/address/{{p.id}}">删除</a>
+                        </div>
+                    </div>
+
+                    </li>
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

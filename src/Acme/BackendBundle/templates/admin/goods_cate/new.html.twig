@@ -1,0 +1,38 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}创建分类{% endblock %}
+
+{% block body %}
+    <h1>创建商品分类</h1>
+
+    <hr/>
+    <div class="row">
+        <form method="post" class="form" action="{{ path('admin_app_goodsCate_new') }}" onsubmit="return normal_submit(this)">
+
+            <div class="form-floating mb-3">
+                <input name="title" id="title" type="text" class="form-control" placeholder="请输入..." required/>
+                <label for="title" class="control-label">标题</label>
+            </div>
+            <div class="form-floating mb-3">
+                <select class="form-select" aria-label="please select" name="parent_id">
+                    <option value="0">--顶级--</option>
+                    {% for p in parentList %}
+                        <option value="{{ p.id }}">{{p.title}}</option>
+                    {% endfor %}
+                </select>
+                <label for="Email" class="control-label">层级</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="mark" id="mark" type="text" class="form-control" placeholder="请输入..." required/>
+                <label for="mark" class="control-label">备注</label>
+            </div>
+            <div class="col-auto">
+                <input type="submit" value="Create" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+
+    <div>
+            <a href="{{ path('admin_app_goodsCate_index') }}">back to list</a>
+    </div>
+{% endblock %}

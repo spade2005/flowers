@@ -1,0 +1,148 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}Member index{% endblock %}
+{% block stylesheets %}
+    <style>
+        .od-ul li span {
+            margin-right: 0.8rem;
+        }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            {% if model.PayStatus==1 %}
+            $("#btnReturn").on("click", function () {
+                return swal({
+                    title: "操作失败",
+                    text: "暂不支持退货",
+                    icon: "error",
+                    button: "OK",
+                });
+            })
+            {% endif %}
+
+            {% if model.PayStatus==0 %}
+            $("#btnPay").on('click', function () {
+                //拉起支付...
+                location = '/mall/order/success?id={{ model.orderNo }}';
+            })
+            $("#btnClose").on('click', function () {
+                let url = '/mall/order/close';
+                let data = {id: '{{ model.orderNo }}'};
+                $.post(url, data, function (j) {
+                    if (j.code == '1') {
+                        return swal({
+                            title: "操作失败",
+                            text: j.message,
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                    swal({
+                        title: "操作成功",
+                        text: '订单取消成功',
+                        icon: "success",
+                        button: "OK",
+                    }).then(() => {
+                        location.reload();
+                    });
+                }, 'json');
+            })
+            {% endif %}
+        });
+
+    </script>
+{% endblock %}
+
+{% block body %}
+
+<div class="row py-2">
+    <div class="col-md-8">
+        <h4>订单号： {{ model.orderNo }}</h4>
+    </div>
+    {% if model.orderStatus==1 %}
+        <div class="btn-group col-sm-3" role="group" aria-label="Basic example">
+            <input type="button" value="关闭订单" id="btnClose" class="btn btn-danger"/>
+            <a href="/mall/member/order" class="btn btn-primary">返回</a>
+        </div>
+    {% elseif model.orderStatus>=3 %}
+        <div class="btn-group col-sm-2" role="group" aria-label="Basic example">
+            {% if model.orderStatus<9 %}
+                <input type="button" value="申请退货" id="btnReturn" class="btn btn-danger"/>
+            {% endif %}
+            <a href="/mall/member/order" class="btn btn-primary">返回</a>
+        </div>
+    {% else %}
+        <div class="btn-group col-sm-1" role="group" aria-label="Basic example">
+            <a href="/mall/member/order" class="btn btn-primary">返回</a>
+        </div>
+    {% endif %}
+</div>
+<ul class="od-ul">
+    <li><span>下单时间：</span>{{ model.createAt }}</li>
+    {% if model.PayStatus==1 %}
+        <li><span>付款时间：</span>{{ model.payTime }}</li>
+    {% endif %}
+    <li><span>订单总价：</span>{{ model.originAmount }}</li>
+    <li><span>订单优惠：</span>{{ model.discountAmount }}</li>
+    <li><span>快递费用：</span>{{ model.shippingPrice }}</li>
+    <li><span>订单实付：</span>{{ model.realAmount }}</li>
+    <li><span class="">当前状态：</span><strong class="text-danger">{{ model.getOrderStatusStr }}</strong></li>
+</ul>
+<h4>收货人信息</h4>
+<ul class="od-ul">
+    <li><span>收货方式：</span>{{ model.shippingWay }}</li>
+    <li><span>收货人：</span>{{ model.addrName }}</li>
+    <li><span>收货电话：</span>{{ model.addrMobile }}</li>
+    <li><span>收货地址：</span>{{ model.address }}</li>
+</ul>
+<div class="row">
+    <div class="order-goods">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>订单商品</th>
+                <th>商品数量</th>
+                <th>商品价格</th>
+                <th>商品实收</th>
+                <th>快递单号</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for p in order.goods %}
+                <tr>
+                    <td>
+                            <span class="float-start me-1">
+                        <img class="img-thumbnail" width="60" height="60" src="{{ p.goods_logo }}"/></span>
+                        <span class="float-start">{{ p.goods_name }}</span>
+                    </td>
+                    <td>
+                        x{{ p.goods_num }}
+                    </td>
+                    <td>
+                        x{{ p.origin_amount }}
+                    </td>
+                    <td>
+                        x{{ p.real_aount }}
+                    </td>
+                    <td>
+                        {% if model.shippingWay(true)==2 %}
+                            自提
+                        {% else %}
+                            {% if p.shipping_status==1 %}
+                                {{ p.shipping_no }}
+                            {% elseif model.payStatus==0 %}
+                                待付款
+                            {% else %}
+                                待商家发货
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% endblock %}

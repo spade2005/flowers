@@ -1,0 +1,208 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}{{goods.title}} - {{goods.intro}}{% endblock %}
+{% block stylesheets %}
+<style>
+.carousel-item img{
+    max-height:400px;
+}
+.gd-image img{ width:100%;height:220px;}
+.gd-price{font-weight:bold;color:red;padding:0.3rem;}
+.gd-price2{ font-size:1.5rem;font-weight:bold;color:red;padding:0.3rem;}
+.gd-title{
+        margin-bottom:0.5rem;
+        padding:0.3rem 0;
+        color:#000;
+    }
+    .content-box .goods-content{
+        min-height:500px;
+    }
+    .carousel-control-next, .carousel-control-prev{
+        background:#e7d5d5!important;
+    }
+    .top-goods-div a{
+        display:block;
+        text-align:center;
+        overflow:hidden;
+    }
+    .top-goods-div a:hover{
+        animation: goodsHover 0.5s;
+        transform: translateY(-1rem);
+    }
+</style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            let quantity={{goods.quantity}};
+            $("#numDiv").on("click",function(){
+                let g=$("#goodsNum");
+                let v=g.val()*1-1;
+                if(v<=1){
+                    v=1;
+                }
+                g.val(v);
+            })
+            $("#numAdd").on("click",function(){
+                let g=$("#goodsNum");
+                let qt=g.data("quantity");
+                g.val(g.val()*1+1);
+                if(g.val()>=qt){
+                    g.val(qt);
+                }
+            })
+            $("#btnAddCart").on('click',function(){
+                let url='/mall/cart/new';
+                let data={gid:"{{goods.id}}",num:$("#goodsNum").val()};
+                if(data.num>quantity){
+                    swal({
+                        title: "操作失败",
+                        text: '商品库存不足',
+                        icon: "error",
+                        button: "OK",
+                    });
+                    return false;
+                }
+                $.post(url,data,function (j){
+                    if(j.code==1){
+                        return swal({
+                            title: "操作失败",
+                            text: j.message,
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                    swal({
+                        title: "操作成功",
+                        text: '加入购物车成功',
+                        icon: "success",
+                        buttons: ['继续查看','立即前往购物车'],
+                    }).then((flag)=>{
+                        if(flag){
+                            location='/mall/cart';
+                        }
+                    });
+                },'json');
+            })
+            $("#btnOrder").on('click',function(){
+                let url='/mall/order';
+                let data={gid:"{{goods.id}}",num:$("#goodsNum").val()};
+                if(data.num>quantity){
+                    swal({
+                        title: "操作失败",
+                        text: '商品库存不足',
+                        icon: "error",
+                        button: "OK",
+                    });
+                    return false;
+                }
+                location.href=url+'?gid='+data.gid+'&num='+data.num;
+            })
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="row mb-3">
+        <div class="col-md-5">
+
+            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+              {% for p in extends.images %}
+                <div class="carousel-item {% if p.is_default==1 %}active{% endif %}">
+                  <img src="{{p.image_src}}" class="d-block w-100" alt="...">
+                </div>
+              {% endfor %}
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+
+        </div>
+        <div class="col-md-7">
+            <h4 class="gd-title">{{goods.title}}</h4>
+            <h5>{{goods.intro}}</h5>
+            <div class="gd-price2">
+                <span class="text-decoration-line-through">￥{{goods.price}}</span>
+                <span class="ms-2">￥{{goods.realPrice}}</span>
+            </div>
+            <div class="my-3 row">
+            <label for="goodsNum" class="col-md-2 col-sm-2 col-form-label">配送说明:</label>
+                <label for="goodsNum" class="col-md-8 col-sm-8 col-form-label">鲜花支持同城配送。（仅北京，上海，广州，深圳）
+            </label>
+            <div class="my-2 row">
+                <label for="goodsNum" class="col-md-2 col-sm-2 col-form-label">购买数量:</label>
+                <div class="col-md-3 col-sm-3 goods-num-td">
+                <div class="input-group">
+                  <span class="input-group-text" id="numDiv">-</span>
+                  <input type="text" value="1" id="goodsNum" class="form-control text-center" data-quantity="{{ goods.quantity}}">
+                  <span class="input-group-text" id="numAdd">+</span>
+                </div>
+                </div>
+            </div>
+            <div class="my-4">
+                <input type="button" id="btnAddCart" value="加购物车" class="btn btn-primary"/>
+                &nbsp;
+                <input type="button" id="btnOrder" value="立即购买" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-4">
+        <div class="col-md-3">
+            <ul class="nav nav-tabs mb-3">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#c-detail">商品推荐</a>
+              </li>
+            </ul>
+            {% for p in extends.topList %}
+            <div class="row align-items-start mb-3 top-goods-div">
+                <div class="col">
+                    <a href="/mall/goods/{{ p.id }}">
+                    <div class="gd-image">
+                        <img src="{{ p.logo }}" />
+                    </div>
+                    <div class="gd-title text-center">
+                        {{ p.title }}
+                    </div>
+                    <div class="gd-price text-center">
+                        <span class="text-decoration-line-through">￥{{ p.price }}</span>
+                        <span class="ms-2">￥{{ p.real_price }}</span>
+                    </div>
+                    </a>
+                </div>
+            </div>
+             {% endfor %}
+        </div>
+        <div class="col-md-7">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#c-detail">商品详情</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#c-return">售后说明</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#c-shipping">物流信息</a>
+              </li>
+            </ul>
+            <div class="content-box my-2">
+                <div class="goods-content" id="c-detail">
+                    {{extends.content.content1}}
+                </div>
+                <div class="goods-content" id="c-return">
+                    {{extends.content.content2}}
+                </div>
+                <div class="goods-content" id="c-shipping">
+                    {{extends.content.content3}}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

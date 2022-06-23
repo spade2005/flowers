@@ -1,0 +1,156 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}会员中心 - 我的订单{% endblock %}
+{% block stylesheets %}
+<style>
+    .od-box{
+        border:1px solid #E1E1E1;
+        padding:0.8rem;margin:.8rem 0;
+    }
+    .od-goods {
+        font-size: 0.8rem;
+        margin-top:0.5rem;
+    }
+    .od-g-t {
+        display: inline-block;
+        padding-left: 10px;
+        vertical-align: top;
+    }
+    .od-g-t a {
+        display: block;
+        margin: 0.3rem;
+    }
+</style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            $("#btnSearch").on('click',function(){
+                let url='/mall/member/order?';
+                let data={
+                    start:0,length:10,order_no:'',order_status:'',
+                    start_day:'',finish_day:''
+                };
+                data.order_no=$("#order_no").val();
+                data.order_status=$("#order_status").val();
+                data.start_day=$("#start_day").val();
+                data.finish_day=$("#finish_day").val();
+                for(let v in data){
+                    url+=v+"="+data[v]+"&"
+                }
+                url=url.substr(0,url.length-1);
+                location=url;
+            })
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="row" style="min-height: 25rem;">
+        <div class="col-sm-2 text-center">
+            <div class="list-group">
+                <a href="javascript:void(0)" class="list-group-item list-group-item-action active" aria-current="true">
+                    会员中心
+                </a>
+                <a href="/mall/member" class="list-group-item list-group-item-action">个人信息</a>
+                <a href="/mall/member/order" class="list-group-item list-group-item-action text-danger">我的订单</a>
+                <a href="/mall/cart" class="list-group-item list-group-item-action">购物车</a>
+                <a href="/mall/address" class="list-group-item list-group-item-action">收货地址</a>
+                <a href="/mall/member/password" class="list-group-item list-group-item-action">更改密码</a>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <h4 style="border-bottom: 1px solid #E1E1E1;padding-bottom: 1rem;">我的订单</h4>
+            <div class="row g-3 align-items-center my-3">
+                <div class="col-auto">
+                    <label for="order_no" class="col-form-label">订单编号</label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" id="order_no" value="{{orderNo}}" class="form-control">
+                </div>
+                <div class="col-auto">
+                    <label for="order_status" class="col-form-label">订单状态</label>
+                </div>
+                <div class="col-auto">
+                    <select id="order_status" class="form-control">
+                        <option value="0">全部状态</option>
+                        <option {% if orderStatus==1 %}selected{% endif %} value="1">待付款</option>
+                        <option {% if orderStatus==2 %}selected{% endif %} value="2">待发货</option>
+                        <option {% if orderStatus==3 %}selected{% endif %} value="3">待收货</option>
+                        <option {% if orderStatus==9 %}selected{% endif %} value="9">已取消</option>
+                        <option {% if orderStatus==10 %}selected{% endif %} value="10">售后单</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-auto">
+                    <label for="start_day" class="col-form-label">开始日期</label>
+                </div>
+                <div class="col-auto">
+                    <input type="date" id="start_day" value="{{startDay}}" class="form-control">
+                </div>
+                <div class="col-auto">
+                    <label for="finish_day" class="col-form-label">结束日期</label>
+                </div>
+                <div class="col-auto">
+                    <input type="date" id="finish_day" value="{{finishDay}}" class="form-control">
+                </div>
+                <div class="col-auto">
+                    <button type="button" id="btnSearch" class="btn btn-danger">Search</button>
+                </div>
+            </div>
+
+            {% for g in list %}
+            <div class="row od-box">
+                <div class="row mb-2">
+                    <div class="col">日期：{{ g.createAt }}</div>
+                    <div class="col">单号：{{ g.order_no }}</div>
+                </div>
+                <div class="row">
+                    {% for p in g.goods %}
+                        {%  if loop.first %}
+                    <div class="od-goods col">
+                        <a class="od-g-i" href="#">
+                            <img src="{{ p.goods_logo }}" width="60" height="60"/>
+                        </a> &nbsp;
+                        <div class="od-g-t">
+                            <a href="#">
+                                {{ p.goods_name }}
+                            </a>
+                        </div>
+                    </div>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="col ">
+                        <div>￥ {{ g.real_amount }}</div>
+                        <div>共{{ g.goods_count }}件</div>
+                    </div>
+                    <div class="col text-center">
+                        <div class="text-danger">{{ g.status }}</div>
+                        <div><a href="/mall/member/order-detail?id={{ g.order_no }}">查看详情</a></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="row">
+                <nav aria-label="Page navigation example">
+                  <ul class="pagination justify-content-center">
+                    <li class="page-item {% if page<=1 %}disabled{% endif %}">
+                      <a class="page-link" href="{{prevUrl}}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
+
+                    <li class="page-item"><a class="page-link" href="javascript:void(0)">{{page}}</a></li>
+
+                    <li class="page-item {% if page>=maxPage %}disabled{% endif %}">
+                      <a class="page-link" href="{{nextUrl}}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+{% endblock %}

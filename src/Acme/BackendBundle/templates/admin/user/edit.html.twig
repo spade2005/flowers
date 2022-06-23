@@ -1,0 +1,43 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}更新管理员{% endblock %}
+
+{% block body %}
+    <h1>Update User</h1>
+
+    <h4>不输入密码则不更新密码</h4>
+    <hr/>
+    <div class="row">
+        <form method="post" class="form" action="{{ path('admin_app_user_edit',{'id': user.id}) }}" onsubmit="return normal_submit(this)">
+
+            <div class="form-floating mb-3">
+                <input readonly id="username" type="text" class="form-control" placeholder="请输入..." value="{{ user.username }}"/>
+                <label for="username" class="control-label">帐号</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password" class="form-control" placeholder="请输入..."/>
+                <label for="password" class="control-label">密码</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password2" class="form-control" placeholder="请输入..."/>
+                <label for="password2" class="control-label">密码确认</label>
+            </div>
+            <div class="form-floating mb-3">
+                <select class="form-select" aria-label="please select" name="role">
+                    <option value="1">普通管理员</option>
+                    <option {% if user.checkRole() %}selected{% endif %}  value="2">超级管理员</option>
+                </select>
+                <label for="Email" class="control-label">角色</label>
+
+            </div>
+            <div class="col-auto">
+                <input type="submit" value="Update" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <a href="{{ path('admin_app_user_index') }}">back to list</a>
+    </div>
+
+{% endblock %}

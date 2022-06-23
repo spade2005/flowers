@@ -1,0 +1,199 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}提交订单{% endblock %}
+{% block stylesheets %}
+    <style>
+        .order-addr .oa-info {
+            border: 2px solid #E1E1E1;
+            padding: 0.8rem;
+            box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+            border-radius: .55rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .order-addr .active, .order-addr .oa-info:hover {
+            border: 2px solid #0d6efd;
+        }
+
+        .order-addr .oa-info li {
+            padding-bottom: 0.1rem;
+            font-size: 0.9rem;
+        }
+
+        .order-div {
+            overflow: hidden;
+        }
+
+        #od-addr, #od-member {
+            font-weight: normal;
+        }
+
+        .order-money {
+            float: right;
+            border: 3px solid #fff0e8;
+            min-width: 230px;
+            padding: 10px 5px 10px 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        #btnOrder {
+            float: right;
+        }
+
+        #od-amount {
+            color: red;
+            padding: 0.3rem;
+            font-size: 1.4rem;
+        }
+        .od-goods {
+            font-size: 0.8rem;
+        }
+        .od-g-t {
+            display: inline-block;
+            padding-left: 10px;
+            vertical-align: top;
+        }
+        .od-g-t a {
+            display: block;
+            margin: 0.3rem;
+        }
+        .od-g-t span {
+            display: block;
+            margin-left: -0.3rem;
+        }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            $(".oa-info").on('click', function () {
+                $(".oa-info").removeClass("active");
+                $(this).addClass("active");
+                let li = $(this).find("li");
+                $("#od-addr").html(li.eq(0).html() + " " + li.eq(1).html());
+                $("#od-member").html(li.eq(2).html());
+            });
+            $(".order-addr .active").trigger('click');
+
+            $("#btnOrder").on("click", function () {
+                let url = '/mall/order/cart-submit';
+                let data = {
+                    'id':'{{id}}',
+                    'addr_id': $(".order-addr .active").data("id"),
+                    'pay_method': $("payMethod1").val(),
+                    'mark': '',
+                };
+                $.post(url,data,function (j){
+                    if(j.error==1){
+                        return swal({
+                            title: "操作失败",
+                            text: j.message,
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                    location='/mall/order/pay?id='+j.data.no;
+                },'json');
+
+            })
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h4>请核对订单信息</h4>
+    <div>
+        <h5>收货人信息 <span class="fs-6 ms-3"><a href="/mall/address">管理收货地址</a></span></h5>
+        <div class="row order-addr">
+            {% if addrList==[] %}
+                <div class="col-md-3 col-sm-3">
+                    <ul class="oa-info">
+                        <li><a href="/mall/address/new">新增收货地址</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                {% for p in addrList %}
+                    <div class="col-md-3 col-sm-3">
+                        <ul class="oa-info {% if p.is_default==1 %}active{% endif %}" data-id="{{ p.id }}">
+                            <li>{{ p.province }}{{ p.city }}{{ p.district }}</li>
+                            <li>{{ p.address }}</li>
+                            <li>{{ p.name }} {{ p.mobile }}</li>
+                        </ul>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <div>
+        <h5>支付方式</h5>
+        <div class="my-3">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" checked name="pay_method" id="payMethod1" value="online">
+                <label class="form-check-label" for="payMethod1">在线支付</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="pay_method" id="payMethod2" value="no" disabled>
+                <label class="form-check-label" for="payMethod2">货到付款</label>
+            </div>
+        </div>
+    </div>
+    <div>
+        <h5>商品信息</h5>
+        <table class="table align-middle text-center">
+            <thead>
+            <tr>
+                <th>商品名称</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>小计</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for p in goods %}
+                <tr>
+                    <td>
+                        <div class="od-goods">
+                            <a class="od-g-i" href="/mall/goods/{{ p.id }}">
+                                <img src="{{ p.image }}" width="50" height="50"/>
+                            </a> &nbsp;
+                            <div class="od-g-t">
+                                <a href="/mall/goods/{{ p.id }}">
+                                    {{ p.title }}
+                                </a>
+                                <span>鲜花不支持7天退货</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ p.real_price }}</td>
+                    <td>{{ p.num }}</td>
+                    <td>{{ p.amount }}</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td>运费：</td>
+                <td>{{shippingAmount}}</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>合计：{{amount}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="order-div">
+        <div class="order-money">
+            <ul>
+                <li>实付款：<span id="od-amount">￥{{amount}}</span></li>
+                <li>配送地址：<span id="od-addr"></span></li>
+                <li>收货人：<span id="od-member"></span></li>
+            </ul>
+            <input type="button" id="btnOrder" value="提交订单" class="btn btn-primary"/>
+        </div>
+    </div>
+{% endblock %}

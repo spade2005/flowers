@@ -1,0 +1,162 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}Member index{% endblock %}
+{% block stylesheets %}
+    <style>
+
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            $.get(dataUrl.level, '', function (j) {
+                let s = areaFormat(j);
+                areaData = j;
+                $("#province").html(s);
+
+                initArea()
+            }, 'json');
+            $("#province").on('change', function () {
+                let o = $(this).val();
+                let j = areaData[o]['children'];
+                if (!j || j.length <= 0) {
+                    return false;
+                }
+                let s = areaFormat(j);
+                $("#province2").val(areaData[o]['name']);
+                $("#city").html(s);
+                $("#city").trigger('change');
+            })
+            $("#city").on('change', function () {
+                let p = $("#province").val();
+                let o = $(this);
+                let j = areaData[p]['children'];
+                if (!j || j.length <= 0) {
+                    return;
+                }
+                $("#city2").val(areaData[p]['children'][o.val()]['name']);
+                let jj = areaData[p]['children'][o.val()]['children'];
+                if (!jj || jj.length <= 0) {
+                    $("#district").html('');
+                    $("#district2").val('');
+                    return;
+                }
+                let s = areaFormat(jj);
+
+                $("#district").html(s);
+                $("#district").trigger('change');
+            })
+            $("#district").on('change',function (){
+                let p = $("#province").val();
+                let c = $("#city").val();
+                let j =areaData[p]['children'][c]['children'];
+                if (!j || j.length <= 0) {
+                    return;
+                }
+                let s=j[$(this).val()]['name'];
+                $("#district2").val(s);
+            })
+            $("#btnSubmit").on('click', function () {
+                let form = $("#address-form");
+                let url = '/mall/address/{{model.id}}/edit';
+                let data=form.serialize();
+                $.post(url, data, function (j) {
+                    if(j.error==1){
+                        return swal({
+                          title: "操作失败",
+                          text: j.message,
+                          icon: "error",
+                          button: "OK",
+                        });
+                    }
+                    swal({
+                      title: "操作成功",
+                      text: "点击返回列表",
+                      icon: "success",
+                      button: "OK",
+                    }).then(()=>{
+                        location='/mall/address/';
+                    });
+                }, 'json');
+            })
+        });
+        function initArea(){
+            let p='{{model.province}}',c='{{model.city}}',d='{{model.district}}';
+            let pi=0,ci=0;
+            for(let v in areaData){
+                if(p==areaData[v]['name']){
+                    pi=v;
+                    $("#province").val(v).trigger('change');
+                    break;
+                }
+            }
+            for(let v in areaData[pi]['children']){
+                if(c==areaData[pi]['children'][v]['name']){
+                    ci=v;
+                    $("#city").val(v).trigger('change');
+                    break;
+                }
+            }
+            for(let v in areaData[pi]['children'][ci]['children']){
+                if(d==areaData[pi]['children'][ci]['children'][v]['name']){
+                    $("#district").val(v).trigger('change');
+                    break;
+                }
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div>
+        <h4>新增收货地址 <span class="fs-6 ms-3"><a href="/mall/address">返回</a></span></h4>
+        <div class="row">
+            <form method="post" id="address-form" class="form" action="/mall/address/{{model.id}}/edit">
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <input name="name" id="name" type="text" class="form-control" value="{{model.name}}" required/>
+                        <label for="name" class="control-label">收货人名称</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <input name="mobile" id="mobile" type="text" class="form-control" value="{{model.mobile}}" required/>
+                        <label for="mobile" class="control-label">收货人电话</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <select class="form-select" aria-label="please select"  id="province">
+                        </select>
+                        <label for="province" class="control-label">省份</label>
+                        <input type="hidden" name="province" id="province2" />
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <select class="form-select" aria-label="please select" id="city">
+                        </select>
+                        <label for="city" class="control-label">城市</label>
+                        <input type="hidden" name="city" id="city2" />
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <select class="form-select" aria-label="please select" id="district">
+                        </select>
+                        <label for="district" class="control-label">地区</label>
+                        <input type="hidden" name="district" id="district2" />
+                    </div>
+                </div>
+                <div class="form-floating mb-3">
+                    <input name="address" id="address" type="text" class="form-control"  value="{{model.address}}" required/>
+                    <label for="address" class="control-label">详细地址</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select class="form-select" aria-label="please select" name="is_default">
+                        <option value="0">--否--</option>
+                        <option {% if model.isDefault==1 %}selected{% endif%} value="1">--是--</option>
+                    </select>
+                    <label for="is_default" class="control-label">是否默认</label>
+                </div>
+                <div class="col-auto">
+                    <input type="button" id="btnSubmit" value="提交" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}Member index{% endblock %}
+{% block stylesheets %}
+    <link crossorigin="anonymous" integrity="sha512-4rPgyv5iG0PZw8E+oRdfN/Gq+yilzt9rQ8Yci2jJ15rAyBmF0HBE4wFjBkoB72cxBeg63uobaj1UcNt/scV93w==" href="https://lib.baomitu.com/fullPage.js/3.1.2/fullpage.min.css" rel="stylesheet">
+    <style>
+        .head1{
+            cursor: pointer;
+            background: url("https://img02.hua.com/pc/pimg/cszq_banner.jpg") 50% 0 no-repeat;
+        }
+        .head2{
+            cursor: pointer;
+            background: url("http://dhkcdn.dinghuakuai.com/uploads/images/c6f16bbd506cc05761de8064195bf20f.png") 50% 0 no-repeat;
+        }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script crossorigin="anonymous" integrity="sha512-gSf3NCgs6wWEdztl1e6vUqtRP884ONnCNzCpomdoQ0xXsk06lrxJsR7jX5yM/qAGkPGsps+4bLV5IEjhOZX+gg==" src="https://lib.baomitu.com/fullPage.js/3.1.2/fullpage.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#fullpage').fullpage({
+                navigation: true,//是否显示导航，默认为false
+                navigationPosition: 'right',//导航小圆点的位置
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div id="fullpage">
+        <a href="/mall/cate">
+        <div class="section head1"></div>
+        <div class="section head2"></div>
+        </a>
+        <div class="section">
+            <img width="100%" src="http://dhkcdn.dinghuakuai.com/uploads/common_images/love.png" />
+            <img width="100%" src="http://dhkcdn.dinghuakuai.com/uploads/common_images/birthday.png" />
+        </div>
+        <div class="section">
+            <img width="100%" src="http://dhkcdn.dinghuakuai.com/uploads/common_images/family.png" />
+            <img width="100%" src="http://dhkcdn.dinghuakuai.com/uploads/common_images/business.png" />
+        </div>
+    </div>
+{% endblock %}

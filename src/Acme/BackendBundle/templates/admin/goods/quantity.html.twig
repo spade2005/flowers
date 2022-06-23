@@ -1,0 +1,65 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}更新商品库存{% endblock %}
+{% block stylesheets %}
+    <style>
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+        })
+    </script>
+{% endblock %}
+{% block body %}
+    <h1>更新商品库存</h1>
+
+    <hr/>
+
+    <div class="row">
+        <form method="post" class="form" action="{{ path('admin_app_goods_quantity',{'id': model.id}) }}"
+              onsubmit="return normal_submit(this)">
+            <div class="row py-2">
+                <div class="form-floating mb-3 col">
+                    <input type="text" class="form-control" placeholder="请输入..." value="{{ model.id }}" readonly/>
+                    <label class="control-label ps-4">id</label>
+                </div>
+                <div class="form-floating mb-3 col">
+                    <input type="text" class="form-control" placeholder="请输入..." value="{{ model.goodsSn }}" readonly/>
+                    <label class="control-label ps-4">货号</label>
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="title" id="title" type="text" class="form-control" value="{{ model.title }}" placeholder="请输入..." readonly/>
+                <label for="title" class="control-label">标题</label>
+            </div>
+
+            <div class="row py-2">
+                <div class="form-floating mb-3 col">
+                    <select class="form-control" id="opt_type" name="opt_type">
+                        <option value="add">增加</option>
+                        <option value="div">减少</option>
+                    </select>
+                    <label for="opt_type" class="control-label ps-4">操作类型</label>
+                </div>
+                <div class="form-floating mb-3 col">
+                    <input type="number" class="form-control" placeholder="请输入..." name="quantiy" id="quantity" />
+                    <label for="quantity" class="control-label ps-4">操作库存</label>
+                </div>
+                <div class="form-floating mb-3 col ">
+                    <input type="text" class="form-control" placeholder="请输入..." value="{{ model.quantity }}/{{ model.totalQuantity }}" readonly required/>
+                    <label class="control-label ps-4">当前库存/总库存</label>
+                </div>
+            </div>
+
+            <div class="col-auto">
+                <input type="submit" value="提交" class="btn btn-primary"/>
+            </div>
+
+        </form>
+    </div>
+
+    <div>
+        <a href="{{ path('admin_app_goods_index') }}">back to list</a>
+    </div>
+{% endblock %}

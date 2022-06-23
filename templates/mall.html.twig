@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}花海-网上鲜花预订{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+    {% block stylesheets %}
+        {#   encore_entry_link_tags('app') } #}
+    {% endblock %}
+    <link crossorigin="anonymous" integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w==" href="https://lib.baomitu.com/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link crossorigin="anonymous" integrity="sha512-10/jx2EXwxxWqCLX/hHth/vu2KY3jCF70dCQB8TSgNjbCVAC/8vai53GfMDrO2Emgwccf2pJqxct9ehpzG+MTw==" href="https://lib.baomitu.com/font-awesome/6.1.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/lib/css/mall.css">
+
+
+    <script crossorigin="anonymous" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha512-OvBgP9A2JBgiRad/mM36mkzXSXaJE9BEIENnVEmeZdITvwT09xnxLtT4twkCa8m/loMbPHsvPl0T8lRGVBwjlQ==" src="https://lib.baomitu.com/twitter-bootstrap/5.1.3/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="/lib/js/mall.js"></script>
+    {% block javascripts %}
+        {#  encore_entry_script_tags('app') } #}
+    {% endblock %}
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">花海-网上鲜花预订</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item d-none">
+                        <a class="nav-link text-dark" href="/">首页</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav">
+                        {% if app.session.get('auth_user') %}
+                            <li class="nav-item dropdown">
+                                 <a class="nav-link" href="/mall/cart">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    欢迎您，{{ app.session.get('auth_user').username }}
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <li><a class="nav-link text-dark" href="/mall/member">个人中心</a></li>
+                                    <li><a class="nav-link text-dark" href="/mall/auth/logout">安全退出</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/mall/auth">
+                                    您好，请登录
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    {% block body %}{% endblock %}
+</div>
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; 2022 - 花海-网上鲜花预订
+    </div>
+</footer>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" tabindex="-1" id="errModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.modal -->
+</body>
+</html>

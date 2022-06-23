@@ -1,0 +1,38 @@
+{% extends 'mall.html.twig' %}
+
+{% block title %}Member index{% endblock %}
+{% block stylesheets %}
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <main role="main" class="pb-3">
+        <h4>账号注册成功</h4>
+        <form action="{{ path('mall_app_auth_index') }}" method="post">
+            <div class="mb-3 row">
+                <label for="phone" class="col-sm-2 col-form-label">注册手机</label>
+                <div class="col-sm-10">
+                  <input type="text" readonly class="form-control-plaintext" id="phone" value="{{member.phone}}">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="username" class="col-sm-2 col-form-label">注册账号</label>
+                <div class="col-sm-10">
+                  <input type="text" readonly class="form-control-plaintext" id="username" value="{{member.username}}">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-auto offset-sm-2">
+                    <a href="/mall/auth" class="btn btn-success">马上去登录</a>
+                </div>
+            </div>
+        </form>
+    </main>
+{% endblock %}

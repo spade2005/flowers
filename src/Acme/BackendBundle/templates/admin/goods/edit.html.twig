@@ -1,0 +1,266 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}更新商品{% endblock %}
+{% block stylesheets %}
+    <style>
+        #step2 textarea {
+            height: 150px;
+        }
+
+        .img-thumbnail {
+            height: 156px !important;
+        }
+    </style>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            $("#btnStep1").on("click", function () {
+                if (!check_form1()) {
+                    return false;
+                }
+                $("#step1").addClass("d-none");
+                $("#step2").removeClass("d-none");
+                let sp = $("#goods-nav .nav-link");
+                sp.eq(0).removeClass("active");
+                sp.eq(1).addClass("active");
+            })
+            $("#btnStep2").on("click", function () {
+                $("#step2").addClass("d-none");
+                $("#step1").removeClass("d-none");
+                let sp = $("#goods-nav .nav-link");
+                sp.eq(1).removeClass("active");
+                sp.eq(0).addClass("active");
+            })
+            $("#btnAddImage").on("click", function () {
+                if ($(this).attr("lock") == '1') {
+                    return false;
+                }
+                var f = $("#myfile")[0];
+                if (f.value == "") {
+                    showMsg("请先选择图片");
+                    return false;
+                }
+                if ($("#imageBox div.form-floating").length >= 12) {
+                    showMsg("最大允许12张图片");
+                    return false;
+                }
+                var url = "/admin/goods/upload";
+                var html = '<iframe src="" name="_up_ifm" class="hide"></iframe>';
+                var frm = '<form target="_up_ifm" action="' + url + '" method="POST" enctype="multipart/form-data"></form>';
+                $("iframe").remove();
+                $("body").append(html);
+                $("iframe").append(frm);
+                $('iframe form').append(f);
+                $("iframe form").submit();
+                //还原input=file
+                f.value = '';
+                $("#span_f").append(f);
+                $(this).attr("lock", 1).html("提交中...");
+            })
+        })
+
+        function ajax_upload_return(res) {
+            $("#btnAddImage").attr("lock", 0).html("上传图片");
+            let r = JSON.parse(res);
+            if (r && r.error == 1) {
+                return showMsg({msg: r.msg});
+            }
+            var str = '<div class="form-floating mb-3 col-2 text-center"><input type="hidden" name="images[]" value="' + r.src +
+                '" /><img src="' + r.src + '" class="img-thumbnail" alt="...">' +
+                '<span onclick="delImage(this)" class="input-group-text justify-content-center">删除</span></div>';
+            $("#imageBox").append(str);
+        }
+
+        function delImage(o) {
+            let obj = $(o);
+            obj.parent().remove();
+        }
+
+        function check_form1() {
+            if ($("#title").val() == "") {
+                $("#title").focus();
+                return false;
+            }
+            if ($("#intro").val() == "") {
+                $("#intro").focus();
+                return false;
+            }
+            if ($("#brand").val() == "") {
+                $("#brand").focus();
+                return false;
+            }
+            if ($("#store").val() == "") {
+                $("#store").focus();
+                return false;
+            }
+            if ($("#price").val() == "") {
+                $("#price").focus();
+                return false;
+            }
+            if ($("#real_price").val() == "") {
+                $("#real_price").focus();
+                return false;
+            }
+            if ($("#quantity").val() == "") {
+                $("#quantity").focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
+{% endblock %}
+{% block body %}
+    <h1>更新商品</h1>
+
+    <hr/>
+    <ul class="nav nav-tabs" id="goods-nav">
+        <li class="nav-item">
+            <span class="nav-link active" aria-current="page">基本信息</span>
+        </li>
+        <li class="nav-item">
+            <span class="nav-link">图片和内容</span>
+        </li>
+    </ul>
+    <div class="row">
+        <form method="post" class="form" action="{{ path('admin_app_goods_edit',{'id': model.id}) }}"
+              onsubmit="return normal_submit(this)">
+            <div id="step1">
+                <div class="row py-2">
+                    <div class="form-floating mb-3 col">
+                        <input type="text" class="form-control" placeholder="请输入..." value="{{ model.id }}" readonly/>
+                        <label class="control-label ps-4">id</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <input type="text" class="form-control" placeholder="请输入..." value="{{ model.goodsSn }}" readonly/>
+                        <label class="control-label ps-4">货号</label>
+                    </div>
+                </div>
+                <div class="form-floating mb-3">
+                    <input name="title" id="title" type="text" class="form-control" value="{{ model.title }}" placeholder="请输入..." required/>
+                    <label for="title" class="control-label">标题</label>
+                </div>
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <select class="form-select" aria-label="please select" name="cate_id">
+                            {% for p in cateList %}
+                                <option {% if p.id == model.cateId %}selected{% endif %} value="{{ p.id }}">{{ p.title }}</option>
+                                {% if p.sub is defined %}
+                                    {% for sp in p.sub %}
+                                        <option {% if sp.id == model.cateId %}selected{% endif %} value="{{ sp.id }}">-- {{ sp.title }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <label for="cate_id" class="control-label ps-4">分类</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <select class="form-control" id="is_on_sale" name="is_on_sale">
+                            <option value="0">下架</option>
+                            <option {% if 1 == model.IsOnSale %}selected{% endif %} value="1">上架</option>
+                        </select>
+                        <label for="is_on_sale" class="control-label ps-4">状态</label>
+                    </div>
+                </div>
+                <div class="form-floating mb-3">
+                    <input name="intro" id="intro" type="text" class="form-control" placeholder="请输入..." value="{{ model.intro }}" required/>
+                    <label for="intro" class="control-label">简略描述</label>
+                </div>
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <input name="brand" id="brand" type="text" class="form-control" placeholder="请输入..." value="{{ model.brand }}" required/>
+                        <label for="brand" class="control-label ps-4">品牌</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <input name="store" id="store" type="text" class="form-control" placeholder="请输入..." value="{{ model.store }}" required/>
+                        <label for="store" class="control-label ps-4">店铺</label>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <input name="price" id="price" type="text" class="form-control" placeholder="请输入..." value="{{ model.price }}" required/>
+                        <label for="price" class="control-label ps-4">划线价</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <input name="real_price" id="real_price" type="text" class="form-control" placeholder="请输入..." value="{{ model.realPrice }}" required/>
+                        <label for="real_price" class="control-label ps-4">售价</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <input name="buy_limit" id="buy_limit" type="number" class="form-control" value="{{ model.buyLimit }}" placeholder="请输入..." required/>
+                        <label for="buy_limit" class="control-label ps-4">限购数量</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <input type="text" class="form-control" placeholder="请输入..." value="{{ model.quantity }}/{{ model.totalQuantity }}" readonly required/>
+                        <label class="control-label ps-4">现库存/总库存</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-floating mb-3 col">
+                        <select class="form-control" id="is_cart" name="is_cart">
+                            <option value="0">不允许加入购物车</option>
+                            <option {% if 1 == model.isCart %}selected{% endif %} value="1">允许加入购物车</option>
+                        </select>
+                        <label for="is_cart" class="control-label ps-4">是否可放购物车</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <select class="form-control" id="is_search" name="is_search">
+                            <option value="0">不允许搜索显示</option>
+                            <option {% if 1 == model.isSearch %}selected{% endif %} value="1">允许搜索显示</option>
+                        </select>
+                        <label for="is_search" class="control-label ps-4">搜索显示</label>
+                    </div>
+                    <div class="form-floating mb-3 col">
+                        <select class="form-control" id="is_test" name="is_test">
+                            <option value="0">非测试</option>
+                            <option {% if 1 == model.isTest %}selected{% endif %} value="1">测试使用</option>
+                        </select>
+                        <label for="is_test" class="control-label ps-4">是否测试商品</label>
+                    </div>
+                </div>
+
+                <div class="col-auto">
+                    <input type="button" value="Next" id="btnStep1" class="btn btn-primary"/>
+                </div>
+            </div>
+            <div id="step2" class="d-none">
+                <div class="input-group mb-3 py-2">
+                    <div id="span_f"><input type="file" class="form-control" name="myfile" id="myfile"></div>
+                    <span class="input-group-text" id="btnAddImage">上传图片</span>
+                </div>
+                <div id="imageBox" class="row">
+                    {% for p in images %}
+                        <div class="form-floating mb-3 col-2 text-center">
+                            <input type="hidden" name="images[]" value="{{ p }}"/><img src="{{ p }}" class="img-thumbnail" alt="...">
+                            <span onclick="delImage(this)" class="input-group-text justify-content-center">删除</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="content1" name="content1">{{ content.content1 }}</textarea>
+                    <label for="content1" class="control-label">详情内容</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="content2" name="content2">{{ content.content2 }}</textarea>
+                    <label for="content2" class="control-label">售后内容</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="content3" name="content3">{{ content.content3 }}</textarea>
+                    <label for="content3" class="control-label">物流内容</label>
+                </div>
+                <div class="col-auto">
+                    <input type="button" value="返回上一步" id="btnStep2" class="btn btn-primary"/> &nbsp;
+                    <input type="submit" value="提交" class="btn btn-primary"/>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div>
+        <a href="{{ path('admin_app_goods_index') }}">back to list</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,10 @@
+twig:
+  default_path: '%kernel.project_dir%/templates'
+  paths:
+    'templates': ~
+    'src/Acme/BackendBundle/templates': ~
+    'src/Acme/FrontendBundle/templates': ~
+
+when@test:
+  twig:
+    strict_variables: true

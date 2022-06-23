@@ -1,0 +1,21 @@
+controllers:
+  resource: ../src/Controller/
+  type: annotation
+
+backend:
+  resource: ../src/Acme/BackendBundle/src/Controller/
+  type: annotation
+
+frontend:
+  resource: ../src/Acme/FrontendBundle/src/Controller/
+  type: annotation
+
+app_logout:
+  path: /logout
+  methods: GET
+
+
+kernel:
+  resource: ../src/Kernel.php
+  type: annotation
+

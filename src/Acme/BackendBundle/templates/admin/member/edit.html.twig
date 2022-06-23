@@ -1,0 +1,65 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}更新会员资料{% endblock %}
+
+{% block body %}
+    <h1>更新会员资料</h1>
+
+    <h4>不输入密码则不更新密码</h4>
+    <hr/>
+    <div class="row">
+        <form method="post" class="form" action="{{ path('admin_app_member_edit',{'id': user.id}) }}" onsubmit="return normal_submit(this)">
+
+            <div class="form-floating mb-3">
+                <input name="username" id="username" type="text" class="form-control" readonly value="{{ user.username }}"/>
+                <label for="username" class="control-label">帐号</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password" class="form-control" placeholder="请输入..."/>
+                <label for="password" class="control-label">密码</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password2" class="form-control" placeholder="请输入..."/>
+                <label for="password2" class="control-label">密码确认</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="phone" id="phone" type="text" class="form-control" placeholder="请输入..." value="{{ user.phone }}"/>
+                <label for="phone" class="control-label">手机</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="real_name" id="real_name" type="text" class="form-control" placeholder="请输入..." value="{{ user.realName }}"/>
+                <label for="real_name" class="control-label">姓名</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select class="form-select" aria-label="please select" name="sex">
+                    <option value="0">未知</option>
+                    <option {% if user.getSex(true) == 1 %}selected{% endif %} value="1">男</option>
+                    <option {% if user.getSex(true) == 2 %}selected{% endif %} value="2">女</option>
+                </select>
+                <label for="Email" class="control-label">性别</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="mark" id="mark" type="text" class="form-control" placeholder="请输入..." value="{{ user.mark }}"/>
+                <label for="mark" class="control-label">备注</label>
+            </div>
+            <div class="form-floating mb-3">
+                <select class="form-select" aria-label="please select" name="level">
+                    <option value="0">默认</option>
+                    <option {% if user.getLevel(true) == 1 %}selected{% endif %} value="1">普</option>
+                    <option {% if user.getLevel(true) == 2 %}selected{% endif %} value="2">金</option>
+                    <option {% if user.getLevel(true) == 3 %}selected{% endif %} value="3">黑</option>
+                </select>
+                <label for="Email" class="control-label">等级</label>
+            </div>
+            <div class="col-auto">
+                <input type="submit" value="Update" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <a href="{{ path('admin_app_member_index') }}">back to list</a>
+    </div>
+
+{% endblock %}

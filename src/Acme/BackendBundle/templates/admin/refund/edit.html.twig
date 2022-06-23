@@ -1,0 +1,183 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}订单详情{% endblock %}
+{% block stylesheets %}
+
+{% endblock %}
+{% block javascripts %}
+    <script>
+        $(document).ready(function () {
+            $("#btnFail").on("click", function () {
+                updateRefund(0);
+            })
+            $("#btnCheck").on("click", function () {
+                updateRefund(1);
+            })
+        })
+        function updateRefund(flag){
+            let url = '/admin/refund/{{ model.id }}/edit';
+            let data = {refund_amount: $("#refund_amount").val(), type: $("#type").val()
+                , reason: $("#reason").val(), mark: $("#mark").val(),flag:flag
+            };
+            $.post(url, data, function (r) {
+                if (r.code == '1') {
+                    return showMsg(r.message);
+                }
+                showMsg({
+                    msg: "操作成功.自动刷新页面", cb: function () {
+                        location.reload()
+                    }
+                });
+            }, 'json');
+        }
+    </script>
+{% endblock %}
+{% block body %}
+    <h1>订单详情</h1>
+
+    <hr/>
+    <div class="row">
+        <div class="row py-2">
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" placeholder="请输入..." value="{{ model.orderNo }}" readonly/>
+                <label class="control-label ps-4">订单编号</label>
+            </div>
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" placeholder="请输入..." value="{{ member.name }}" readonly/>
+                <label class="control-label ps-4">下单会员</label>
+            </div>
+        </div>
+        <div class="row py-2">
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" placeholder="请输入..." value="{{ model.refundNo }}" readonly/>
+                <label class="control-label ps-4">退单编号</label>
+            </div>
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" placeholder="请输入..." value="{{ model.createAt }}" readonly/>
+                <label class="control-label ps-4">退单时间</label>
+            </div>
+        </div>
+
+        <div class="row py-2">
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" placeholder="请输入..." value="{{ model.OrderAmount }}" readonly/>
+                <label class="control-label ps-4">订单总价</label>
+            </div>
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" placeholder="请输入..." value="{{ model.getRefundStatusStr }}" readonly/>
+                <label class="control-label ps-4">退单状态</label>
+            </div>
+
+        </div>
+        <div class="row py-2">
+            <div class="form-floating mb-3 col">
+                <input type="text" class="form-control" value="{{ model.refundAmount }}" id="refund_amount"/>
+                <label class="control-label ps-4">退单价格</label>
+            </div>
+            <div class="form-floating mb-3 col">
+                <select class="form-control" id="type">
+                    <option value="1">退款</option>
+                    <option {% if model.type==2 %}selected{% endif %} value="2">退货</option>
+                </select>
+                <label class="control-label ps-4">退单类型</label>
+            </div>
+        </div>
+
+        <div class="row py-2">
+            <div class="form-floating col mb-3">
+                <input type="text" class="form-control" id="reason" placeholder="请输入..." value="{{ model.reason }}"/>
+                <label class="control-label ps-4">退单原因</label>
+            </div>
+            <div class="form-floating col mb-3">
+                <input type="text" class="form-control" id="mark" placeholder="请输入..." value="{{ model.mark }}"/>
+                <label class="control-label ps-4">退单备注</label>
+            </div>
+        </div>
+
+        <div class="order-goods">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>订单商品</th>
+                    <th>商品数量</th>
+                    <th>商品价格</th>
+                    <th>商品实收</th>
+                    <th>发货单号</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in goodsList %}
+                    <tr>
+                        <td>
+                            <span class="float-start me-1">
+                        <img class="img-thumbnail" width="60" height="60" src="{{ p.goods_logo }}"/></span>
+                            <span class="float-start">{{ p.goods_name }}</span>
+                        </td>
+                        <td>
+                            x{{ p.goods_num }}
+                        </td>
+                        <td>
+                            x{{ p.origin_amount }}
+                        </td>
+                        <td>
+                            x{{ p.real_aount }}
+                        </td>
+                        <td>
+                            {% if p.shipping_status==1 %}
+                                {{ p.shipping_no }}
+                            {% else %}
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="shipping_no[]" placeholder="输入物流单号后点击发货"/>
+                                    <input type="hidden" name="shipping_id[]" value="{{ p.id }}">
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="order-logs">
+            <h6>退单操作日志</h6>
+            <ul>
+                {% for p in logList %}
+                    <li>{{ p.create_at }} - {{ p.message }} - {{ p.create_by }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="row py-2">
+            {% if model.refundStatus==0 %}
+                <div class="form-floating col-md-1">
+                    <input type="button" value="审核通过" id="btnCheck" class="btn btn-primary"/>
+                </div>
+                <div class="form-floating col-md-1">
+                    <input type="button" value="审核不通过" id="btnFail" class="btn btn-info"/>
+                </div>
+            {% endif %}
+            {% if model.refundStatus==1 %}
+                <div class="form-floating col-md-1">
+                    <input type="button" value="验货成功" id="btnCheck" class="btn btn-primary"/>
+                </div>
+                <div class="form-floating col-md-1">
+                    <input type="button" value="验货失败" id="btnFail" class="btn btn-info"/>
+                </div>
+            {% endif %}
+            {% if model.refundStatus==3 %}
+                <div class="form-floating col-md-1">
+                    <input type="button" value="发起退款" id="btnCheck" class="btn btn-primary"/>
+                </div>
+            {% endif %}
+            {% if model.refundStatus==4 %}
+                <div class="form-floating col-md-1">
+                    <input type="button" value="审核不通过" id="btnCheck" class="btn btn-primary"/>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+    <div>
+        <a href="{{ path('admin_app_refund_index') }}">back to list</a>
+    </div>
+{% endblock %}

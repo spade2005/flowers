@@ -1,0 +1,41 @@
+{% extends 'bt.html.twig' %}
+
+{% block title %}创建管理员{% endblock %}
+
+{% block body %}
+    <h1>Create new User</h1>
+
+    <hr/>
+    <div class="row">
+        <form method="post" class="form" action="{{ path('admin_app_user_new') }}" onsubmit="return normal_submit(this)">
+
+            <div class="form-floating mb-3">
+                <input name="username" id="username" type="text" class="form-control" placeholder="请输入..." required/>
+                <label for="username" class="control-label">帐号</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password" class="form-control" placeholder="请输入..." required/>
+                <label for="password" class="control-label">密码</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" name="password2" class="form-control" placeholder="请输入..." required/>
+                <label for="password2" class="control-label">密码确认</label>
+            </div>
+            <div class="form-floating mb-3">
+                <select class="form-select" aria-label="please select" name="role">
+                    <option value="1">普通管理员</option>
+                    <option value="2">超级管理员</option>
+                </select>
+                <label for="Email" class="control-label">角色</label>
+
+            </div>
+            <div class="col-auto">
+                <input type="submit" value="Create" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <a href="{{ path('admin_app_user_index') }}">back to list</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,47 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    min-height: 100%;
+    position: relative;
+}
+
+#showBox{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    position: absolute;
+    flex: 1;
+    z-index:100;
+}
+
+#showBox .toast {
+    min-width: 220px;
+}
+
+
+.order-logs{
+    border:1px solid #E1E1E1;
+    padding: 0.8rem;
+}
+.order-logs h6{
+    background: #eeb9b6;
+    color: #fff;
+    padding:0.5rem;
+}
